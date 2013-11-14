@@ -313,7 +313,11 @@ class Broker(object):
         :rtype: None
         """
         ret_id = return_addresses[0]
-        wrep = self._workers[ret_id]
+        try:
+            wrep = self._workers[ret_id]
+        except KeyError:
+            return  # worker is gone, ignore this message
+
         return_addresses, msg = self.split_address(message)
 
         self.client_response(return_addresses, wrep.service, msg, partial=True)
@@ -332,7 +336,11 @@ class Broker(object):
         :rtype: None
         """
         ret_id = return_addresses[0]
-        wrep = self._workers[ret_id]
+        try:
+            wrep = self._workers[ret_id]
+        except KeyError:
+            return  # worker is gone, ignore this message
+
         return_addresses, msg = self.split_address(message)
 
         self.client_response(return_addresses, wrep.service, msg)
@@ -404,7 +412,11 @@ class Broker(object):
         :rtype: None
         """
         ret_id = return_addresses[0]
-        wrep = self._workers[ret_id]
+        try:
+            wrep = self._workers[ret_id]
+        except KeyError:
+            return  # worker is gone, ignore this message
+
         return_addresses, msg = self.split_address(message)
 
         self.client_response(return_addresses, wrep.service, msg, exception=True)
@@ -424,7 +436,11 @@ class Broker(object):
         :rtype: None
         """
         ret_id = return_addresses[0]
-        wrep = self._workers[ret_id]
+        try:
+            wrep = self._workers[ret_id]
+        except KeyError:
+            return  # worker is gone, ignore this message
+
         return_addresses, msg = self.split_address(message)
 
         self.client_response(return_addresses, wrep.service, msg, error=True)
