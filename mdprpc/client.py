@@ -206,6 +206,7 @@ class Client(object):
         """Helper for stopping timeout event
         """
         if self._tmo:
+            self._tmo.stop()
             self._tmo = None
 
     def on_message(self, service, msg):
