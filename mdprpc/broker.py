@@ -26,7 +26,7 @@ from zmq.eventloop.ioloop import IOLoop
 from random import choice
 
 HB_INTERVAL = 1000  #: in milliseconds
-HB_LIVENESS = 5    #: HBs to miss before connection counts as dead
+HB_LIVENESS = 5  #: HBs to miss before connection counts as dead
 MDP_CLIENT_VERSION = b'MDPC02'
 MDP_WORKER_VERSION = b'MDPW02'
 
@@ -453,9 +453,10 @@ class Broker(object):
 
         :rtype: None
         """
-        for wrep in self._workers.values():
+        for wrep in list(self._workers.values()):
             if not wrep.is_alive():
-                self.on_log_event('worker.connection_timeout', "Worker connection timeout for service '%s'." % wrep.service)
+                self.on_log_event('worker.connection_timeout',
+                                  "Worker connection timeout for service '%s'." % wrep.service)
                 self.unregister_worker(wrep.id)
         return
 
@@ -592,7 +593,8 @@ class Broker(object):
             m.append(worker)
         else:
             self._multicasts[multicast_name] = [worker]
-        self.on_log_event('worker.register_multicast', "Service '%s' added to multicast group '%s'." % (worker.service, multicast_name))
+        self.on_log_event('worker.register_multicast',
+                          "Service '%s' added to multicast group '%s'." % (worker.service, multicast_name))
         return
 
     def shutdown(self):
@@ -645,7 +647,6 @@ class Broker(object):
 
 
 class WorkerRep(object):
-
     """Helper class to represent a worker in the broker.
 
     Instances of this class are used to track the state of the attached worker
@@ -678,7 +679,7 @@ class WorkerRep(object):
         Sends heartbeat to worker.
         """
         self.curr_liveness -= 1
-        msg = [ self.id, b'', MDP_WORKER_VERSION, b'\x05' ]
+        msg = [self.id, b'', MDP_WORKER_VERSION, b'\x05']
         self.stream.send_multipart(msg)
         return
 
