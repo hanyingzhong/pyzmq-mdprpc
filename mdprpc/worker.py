@@ -18,18 +18,19 @@ __license__ = """
 __author__ = 'Matej Capkovic'
 __email__ = 'capkovic@gmail.com'
 
+import time
 import zmq
 from zmq.eventloop.zmqstream import ZMQStream
 from zmq.eventloop.ioloop import IOLoop, DelayedCallback, PeriodicCallback
 from uuid import uuid4
 from multiprocessing import Process
+from threading import Thread
 import msgpack
 
 MDP_WORKER_VERSION = b'MDPW02'
 
 
 class Worker(object):
-
     """Class for the MDP worker side.
 
     Thin encapsulation of a zmq.DEALER socket.
@@ -39,9 +40,10 @@ class Worker(object):
     """
     max_forks = 10
 
-    ipc = 'ipc:///tmp/zmq-rpc-'+str(uuid4())
+    # ipc = 'ipc:///tmp/zmq-rpc-'+str(uuid4())
+    ipc = 'tcp://127.0.0.1:55433'
     HB_INTERVAL = 1000  # in milliseconds
-    HB_LIVENESS = 3    # HBs to miss before connection counts as dead
+    HB_LIVENESS = 3  # HBs to miss before connection counts as dead
 
     def __init__(self, context, endpoint, service, multicasts=()):
         """Initialize the MDPWorker.
@@ -78,8 +80,8 @@ class Worker(object):
         """
         self.on_log_event('broker.connect', 'Trying to connect do broker')
         socket = self.context.socket(zmq.DEALER)
-        ioloop = IOLoop.instance()
-        self.stream = ZMQStream(socket, ioloop)
+        self.ioloop = IOLoop.instance()
+        self.stream = ZMQStream(socket, self.ioloop)
         self.stream.on_recv(self._on_message)
         self.stream.socket.setsockopt(zmq.LINGER, 0)
         self.stream.connect(self.endpoint)
@@ -101,8 +103,9 @@ class Worker(object):
         self.on_log_event('broker.timeout', 'Connection to broker timeouted, disconnecting')
         self.shutdown(False)
         # try to recreate it
-        self._delayed_cb = DelayedCallback(self._create_stream, 5000)
-        self._delayed_cb.start()
+        # self._delayed_cb = DelayedCallback(self._create_stream, 5000)
+        # self._delayed_cb.start()
+        self.ioloop.add_timeout(time.time() + 5, self._create_stream)
         return
 
     def send_hb(self):
@@ -143,7 +146,7 @@ class Worker(object):
     def disconnect(self):
         """Helper method to send the workers DISCONNECT message.
         """
-        self.stream.socket.send_multipart([b'', MDP_WORKER_VERSION, b'\x06' ])
+        self.stream.socket.send_multipart([b'', MDP_WORKER_VERSION, b'\x06'])
         self.curr_liveness = self.HB_LIVENESS
         return
 
@@ -291,7 +294,9 @@ class Worker(object):
         args = msgpack.unpackb(message[1])
         kwargs = msgpack.unpackb(message[2])
 
-        p = Process(target=self.do_work, args=(addresses, name, args, kwargs))
+        # underneath windows, pickle error happened
+        # p = Process(target=self.do_work, args=(addresses, name, args, kwargs))
+        p = Thread(target=self.do_work, args=(addresses, name, args, kwargs))
         p.start()
         p._args = None  # free memory
         self.forks.append(p)
