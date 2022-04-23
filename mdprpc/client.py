@@ -18,6 +18,7 @@ __license__ = """
 __author__ = 'Matej Capkovic'
 __email__ = 'capkovic@gmail.com'
 
+import time
 import zmq
 from zmq.eventloop.zmqstream import ZMQStream
 from zmq.eventloop.ioloop import IOLoop, DelayedCallback
@@ -65,7 +66,7 @@ class Client(object):
         if not self.stream:
             return
         self.stream.socket.setsockopt(zmq.LINGER, 0)
-        self.stream.socket.close()
+        # self.stream.socket.close()
         self.stream.close()
         self.stream = None
         return
@@ -113,7 +114,8 @@ class Client(object):
 
         :rtype None:
         """
-        data = [method.encode('utf-8'), msgpack.packb([] if args is None else args), msgpack.packb({} if kwargs is None else kwargs)]
+        data = [method.encode('utf-8'), msgpack.packb([] if args is None else args),
+                msgpack.packb({} if kwargs is None else kwargs)]
         return self.request(data, timeout)
 
     def _on_message(self, message):
@@ -122,7 +124,7 @@ class Client(object):
         :param message:   list of message parts.
         :type message:    list of str
         """
-        message.pop(0) # remove empty string
+        message.pop(0)  # remove empty string
         protocol_version = message.pop(0)
         if protocol_version != MDP_WORKER_VERSION:  # version check, ignore old versions
             return
@@ -168,7 +170,7 @@ class Client(object):
                 self.multicast_already_received.append(worker)
             if self.multicast_services is None or len(self.multicast_already_received) == len(self.multicast_services):
                 self.stop_waiting()
-        #else: unknown type - do nothing
+        # else: unknown type - do nothing
         return
 
     def wait_for_reply(self):
@@ -198,8 +200,9 @@ class Client(object):
         :param timeout:  the time to wait in milliseconds.
         :type timeout:   int
         """
-        self._tmo = DelayedCallback(self._on_timeout, timeout)
-        self._tmo.start()
+        # self._tmo = DelayedCallback(self._on_timeout, timeout)
+        # self._tmo.start()
+        self.ioloop.add_timeout(time.time() + timeout, self._on_timeout)
         return
 
     def _stop_timeout(self):
