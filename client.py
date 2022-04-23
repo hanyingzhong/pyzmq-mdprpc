@@ -48,7 +48,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     arguments = eval('[%s]'%args.args if args.args is not None else '[]')
     kwarguments = eval('{%s}'%args.kwargs if args.kwargs is not None else '{}')
-    timeout = args.timeout * 1000.0
+    timeout = args.timeout
     if not args.target.startswith('mmi.') and args.task == '':
         sys.exit('please specify task name')
 
