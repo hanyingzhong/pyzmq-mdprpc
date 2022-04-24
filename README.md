@@ -1,5 +1,6 @@
 pyzmq-mdprpc
 ===================================================
+https://rfc.zeromq.org/spec/7/
 
 pyzmq-mdprpc is RPC implementation based on zeromq and msgpack and inspired by pyzmq-mdp. This repository contains library that can be used programmatically via lib APIs or from command line using the example client.py/broker.py/worker.py commands.
 
