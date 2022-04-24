@@ -19,6 +19,17 @@ for name, m in [(name, modules.__dict__[name]) for name in modules.__all__]:
             methods[name + '.' + method] = m.__dict__.get(method)
 
 
+def params_convert(_args, _kwargs):
+    if _args and _kwargs:
+        return _args, _kwargs
+    elif _args:
+        return _args
+    elif _kwargs:
+        return _kwargs
+    else:
+        return tuple()
+
+
 class MyWorker(Worker):
     max_forks = 50
 
@@ -37,12 +48,9 @@ class MyWorker(Worker):
                 raise Exception('method %s not found' % name)
 
             self.send_reply(addresses, 'started', partial=True)
-            if args and kwargs:
-                result = method_to_call(args, kwargs)
-            elif args:
-                result = method_to_call(args)
-            elif kwargs:
-                result = method_to_call(kwargs)
+            param = params_convert(args, kwargs)
+            if bool(param):
+                result = method_to_call(param)
             else:
                 result = method_to_call()
         except BaseException as e:
@@ -70,7 +78,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     context = Context()
-
 
     # handle exit signals
     def handler(signum, frame):
