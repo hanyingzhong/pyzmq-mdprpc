@@ -13,6 +13,7 @@ import argparse
 import modules
 
 methods = {}
+# resolve rpc functions from modules/....py, modules.__all__ initialized in modules.__init__.py
 for name, m in [(name, modules.__dict__[name]) for name in modules.__all__]:
     for method in dir(m):
         if hasattr(m.__dict__.get(method), '__call__'):
@@ -78,6 +79,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     context = Context()
+
 
     # handle exit signals
     def handler(signum, frame):
