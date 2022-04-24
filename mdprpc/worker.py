@@ -48,20 +48,11 @@ class MyWorker(Worker):
                 raise Exception('method %s not found' % name)
 
             self.send_reply(addresses, 'started', partial=True)
-            # tuple([item for item in [args, kwargs] if bool(item)])
             param = params_convert(args, kwargs)
             if bool(param):
                 result = method_to_call(param)
             else:
                 result = method_to_call()
-            # if args and kwargs:
-            #     result = method_to_call(args, kwargs)
-            # elif args:
-            #     result = method_to_call(args)
-            # elif kwargs:
-            #     result = method_to_call(kwargs)
-            # else:
-            #     result = method_to_call()
         except BaseException as e:
             print('exception in job \'%s\'' % name)
             print(traceback.format_exc())
