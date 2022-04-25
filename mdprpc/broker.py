@@ -25,7 +25,7 @@ from zmq.eventloop.ioloop import PeriodicCallback
 from zmq.eventloop.ioloop import IOLoop
 from random import choice
 
-HB_INTERVAL = 1000  #: in milliseconds
+HB_INTERVAL = 10000  #: in milliseconds
 HB_LIVENESS = 5  #: HBs to miss before connection counts as dead
 MDP_CLIENT_VERSION = b'MDPC02'
 MDP_WORKER_VERSION = b'MDPW02'
