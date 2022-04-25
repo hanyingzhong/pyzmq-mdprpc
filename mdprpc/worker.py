@@ -53,7 +53,7 @@ class Worker(object):
     # ipc = 'ipc:///tmp/zmq-rpc-'+str(uuid4())b
     # ipc = 'tcp://127.0.0.1:55433'
     # ipc = 'tcp://127.0.0.1:%d' % get_next_available_port(10000)
-    HB_INTERVAL = 1000  # in milliseconds
+    HB_INTERVAL = 10000  # in milliseconds
     HB_LIVENESS = 3  # HBs to miss before connection counts as dead
 
     def __init__(self, context, endpoint, service, multicasts=()):
